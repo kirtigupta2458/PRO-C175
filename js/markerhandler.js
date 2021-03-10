@@ -1,11 +1,14 @@
 var A = ["H", "Li", "Na", "K"];
 var B = ["F", "Cl", "Br", "I"];
+
 var C = ["O", "S", "Se"];
 
 var elementsArray = [];
+
 AFRAME.registerComponent("markerhandler", {
   init: async function () {
     var compounds = await this.getCompounds();
+
     this.el.addEventListener("markerFound", () => {
       var elementName = this.el.getAttribute("element_name");
       var barcodeValue = this.el.getAttribute("value");
@@ -17,7 +20,7 @@ AFRAME.registerComponent("markerhandler", {
         compound.setAttribute("visible", false);
       });
 
-      // Changing atom Visiblity
+      // Changing Atom Visiblity
       var atom = document.querySelector(`#${elementName}-${barcodeValue}`);
       atom.setAttribute("visible", true);
     });
@@ -25,36 +28,30 @@ AFRAME.registerComponent("markerhandler", {
     this.el.addEventListener("markerLost", () => {
       var elementName = this.el.getAttribute("element_name");
       var index = elementsArray.findIndex(x => x.element_name === elementName);
-
       if (index > -1) {
         elementsArray.splice(index, 1);
       }
     });
   },
 
-  getCompounds: function () {
-    // NOTE: Use ngrok server to get json values
-    return fetch("js/compoundList.json")
-      .then(res => res.json())
-      .then(data => data);
-  },
+
   tick: function () {
     if (elementsArray.length > 1) {
+
       var messageText = document.querySelector("#message-text");
 
       var length = elementsArray.length;
       var distance = null;
+
       var compound = this.getCompound();
+
       if (length === 2) {
-        var marker1 = document.querySelector(
-          `#marker-${elementsArray[0].barcode_value}`
-        );
-        var marker2 = document.querySelector(
-          `#marker-${elementsArray[1].barcode_value}`
-        );
+        var marker1 = document.querySelector(`#marker-${elementsArray[0].barcode_value}`);
+        var marker2 = document.querySelector(`#marker-${elementsArray[1].barcode_value}`);
 
         distance = this.getDistance(marker1, marker2);
-        if (distance < 2) {
+
+        if (distance < 1.25) {
           if (compound !== undefined) {
             this.showCompound(compound);
           } else {
@@ -66,37 +63,31 @@ AFRAME.registerComponent("markerhandler", {
       }
 
       if (length === 3) {
-        var marker1 = document.querySelector(
-          `#marker-${elementsArray[0].barcode_value}`
-        );
+        var marker1 = document.querySelector(`#marker-${elementsArray[0].barcode_value}`);
 
-        var marker2 = document.querySelector(
-          `#marker-${elementsArray[1].barcode_value}`
-        );
+        var marker2 = document.querySelector(`#marker-${elementsArray[1].barcode_value}`);
 
-        var marker3 = document.querySelector(
-          `#marker-${elementsArray[2].barcode_value}`
-        );
+        var marker3 = document.querySelector(`#marker-${elementsArray[2].barcode_value}`);
 
         var distance1 = this.getDistance(marker1, marker2);
         var distance2 = this.getDistance(marker1, marker3);
-        
-        console.log(distance1)
-        console.log(distance2)
 
-        if (distance1 < 2 && distance2 < 2) {
+        if (distance1 < 1.25 && distance2 < 1.25) {
+
           if (compound !== undefined) {
             var barcodeValue = elementsArray[0].barcode_value;
             this.showCompound(compound, barcodeValue);
           } else {
             messageText.setAttribute("visible", true);
           }
-        } else {
+        }
+        else {
           messageText.setAttribute("visible", false);
         }
       }
     }
   },
+  //Calculate distance between two position markers
   getDistance: function (elA, elB) {
     return elA.object3D.position.distanceTo(elB.object3D.position);
   },
@@ -112,10 +103,8 @@ AFRAME.registerComponent("markerhandler", {
             compound += i.element_name;
             return { name: compound, value: el.barcode_value };
           }
-
           if (C.includes(i.element_name)) {
             var count = this.countOccurrences(elementsArray, el.element_name);
-            console.log(count)
             if (count > 1) {
               compound += count + i.element_name;
               return { name: compound, value: i.barcode_value };
@@ -126,17 +115,19 @@ AFRAME.registerComponent("markerhandler", {
     }
   },
   showCompound: function (compound) {
+    //Hide elements
     elementsArray.map(item => {
-      var el = document.querySelector(
-        `#${item.element_name}-${item.barcode_value}`
-      );
+      var el = document.querySelector(`#${item.element_name}-${item.barcode_value}`);
       el.setAttribute("visible", false);
     });
-
-    // show Compound
-    var compound = document.querySelector(
-      `#${compound.name}-${compound.value}`
-    );
+    //Show Compound
+    var compound = document.querySelector(`#${compound.name}-${compound.value}`);
     compound.setAttribute("visible", true);
-  }
+  },
+  getCompounds: function () {
+    // NOTE: Use ngrok server to get json values
+    return fetch("js/compoundList.json")
+      .then(res => res.json())
+      .then(data => data);
+  },
 });
