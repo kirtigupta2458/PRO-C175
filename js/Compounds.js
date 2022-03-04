@@ -163,22 +163,16 @@ AFRAME.registerComponent("atoms", {
     compounds.map(item => {
       var compound = document.createElement("a-entity");
       compound.setAttribute("id", `${item.compound_name}-${barcodeValue}`);
-      compound.setAttribute("visible", false);
-      marker.appendChild(compound);
+      
 
       var compoundCard = document.createElement("a-entity");
       compoundCard.setAttribute("id", `compound-card-${item.compound_name}`);
-      compoundCard.setAttribute("geometry", {
-        primitive: "plane",
-        width: 1.2,
-        height: 1.7
-      });
+     
 
       compoundCard.setAttribute("material", {
         src: `./assets/compound_cards/card_${item.compound_name}.png`
       });
-      compoundCard.setAttribute("position", { x: 0, y: 0, z: 0.2 });
-      compoundCard.setAttribute("rotation", { x: -90, y: 0, z: 0 });
+      
 
       compound.appendChild(compoundCard);
 
@@ -186,27 +180,14 @@ AFRAME.registerComponent("atoms", {
       item.elements.map((m, index) => {
         var n = document.createElement("a-entity");
         n.setAttribute("id", `compound-nucleus-${m}`);
-        n.setAttribute("geometry", {
-          primitive: "sphere",
-          radius: 0.2
-        });
-        n.setAttribute("material", "color", colors[m]);
-        n.setAttribute("position", { x: posX, y: 1, z: 0 });
-        posX += 0.35;
+        
 
         compound.appendChild(n);
 
         var nuclesName = document.createElement("a-entity");
         nuclesName.setAttribute("id", `compound-nucleus-name-${m}`);
-        nuclesName.setAttribute("position", { x: 0, y: 0.21, z: 0 });
-        nuclesName.setAttribute("rotation", { x: -90, y: 0, z: 0 });
-        nuclesName.setAttribute("text", {
-          font: "monoid",
-          width: 3,
-          color: "black",
-          align: "center",
-          value: m
-        });
+        
+        
 
         n.appendChild(nuclesName);
       });
